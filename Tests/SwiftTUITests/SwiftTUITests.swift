@@ -1,5 +1,5 @@
-import XCTest
 @testable import SwiftTUI
+import XCTest
 
 final class SwiftTUITests: XCTestCase {
     func testExample() throws {
