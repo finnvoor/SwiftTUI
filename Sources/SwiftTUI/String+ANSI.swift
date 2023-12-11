@@ -1,7 +1,7 @@
 import Foundation
 
-let ESC = "\u{1B}"
-let CSI = ESC + "["
+let ESC = Character("\u{1B}")
+let CSI = "\(ESC)["
 
 // MARK: - SGR
 
@@ -88,5 +88,11 @@ public extension String {
 
     var brightWhite: String {
         "\(CSI)97m\(self)\(CSI)0m"
+    }
+}
+
+public extension String {
+    func removingSGR() -> String {
+        replacingOccurrences(of: "\(ESC)\\[[0-9;]*m", with: "", options: .regularExpression)
     }
 }

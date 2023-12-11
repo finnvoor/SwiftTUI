@@ -19,17 +19,34 @@ public func chooseFromList<T: CustomStringConvertible>(_ list: [T], prompt: Stri
         Termios.pop()
     }
 
-    print([
-        "?".brightGreen.bold,
-        prompt.bold,
-        "[Use arrows to move]".brightCyan
-    ].joined(separator: " "))
-
     var selectedIndex = 0
+    var filter = ""
+    let windowRows = Window.size?.rows ?? 10
     while true {
-        for (index, option) in list.enumerated() {
+        print([
+            "?".brightGreen.bold,
+            prompt.bold,
+            filter,
+            "[Use arrows to move, type to filter]".brightCyan
+        ].filter { !$0.isEmpty }.joined(separator: " "))
+
+        var filteredList = list
+        if !filter.isEmpty {
+            filteredList = list.filter {
+                $0.description.lowercased().contains(filter.lowercased())
+            }
+        }
+        filteredList = Array(filteredList.prefix(windowRows - 2))
+        selectedIndex = min(selectedIndex, filteredList.count - 1)
+        if filteredList.isEmpty {
+            selectedIndex = -1
+        } else if selectedIndex < 0 {
+            selectedIndex = 0
+        }
+
+        for (index, option) in filteredList.enumerated() {
             if index == selectedIndex {
-                print("> \(option)".brightCyan.bold)
+                print("> \(option)".removingSGR().brightCyan.bold)
             } else {
                 print("  \(option)")
             }
@@ -39,18 +56,25 @@ public func chooseFromList<T: CustomStringConvertible>(_ list: [T], prompt: Stri
         case Key.up:
             selectedIndex = max(selectedIndex - 1, 0)
         case Key.down:
-            selectedIndex = min(selectedIndex + 1, list.count - 1)
+            selectedIndex = min(selectedIndex + 1, filteredList.count - 1)
         case "\n":
-            Cursor.moveUp(by: list.count + 1)
+            guard filteredList.indices.contains(selectedIndex) else { break }
+            Cursor.moveUp(by: filteredList.count + 1)
             Cursor.clearBelow()
             print([
                 "?".brightGreen.bold,
                 prompt.bold,
-                list[selectedIndex].description.brightCyan
+                filteredList[selectedIndex].description.brightCyan
             ].joined(separator: " "))
-            return list[selectedIndex]
-        default: break
+            return filteredList[selectedIndex]
+        case "\u{7F}":
+            if !filter.isEmpty { filter.removeLast() }
+        default:
+            if Character(key).isASCII {
+                filter += key
+            }
         }
-        Cursor.moveUp(by: list.count)
+        Cursor.moveUp(by: filteredList.count + 1)
+        Cursor.clearBelow()
     }
 }
