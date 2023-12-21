@@ -7,17 +7,19 @@ public enum ActivityIndicator {
         task = Task {
             var frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
             while !Task.isCancelled {
-                Cursor.clearToEndOfLine()
                 print(frames[0].bold)
-                frames.append(frames.removeFirst())
                 Cursor.moveUp()
                 try? await Task.sleep(nanoseconds: 80_000_000)
+                guard !Task.isCancelled else { return }
+                Cursor.clearToEndOfLine()
+                frames.append(frames.removeFirst())
             }
         }
     }
 
     public static func stop() {
         task?.cancel()
+        Cursor.clearToEndOfLine()
     }
 
     // MARK: Private
