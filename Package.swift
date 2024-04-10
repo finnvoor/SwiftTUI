@@ -6,8 +6,5 @@ let package = Package(
     name: "SwiftTUI",
     platforms: [.macOS(.v11)],
     products: [.library(name: "SwiftTUI", targets: ["SwiftTUI"])],
-    targets: [
-        .target(name: "SwiftTUI"),
-        .testTarget(name: "SwiftTUITests", dependencies: ["SwiftTUI"])
-    ]
+    targets: [.target(name: "SwiftTUI")]
 )
