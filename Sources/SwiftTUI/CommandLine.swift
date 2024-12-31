@@ -80,6 +80,12 @@ public enum CommandLine {
         }
     }
 
+    public static func askForText(prompt: String = "?", title: String? = nil) -> String {
+        if let title { print(title.brightBlue.bold) }
+        print(prompt.brightMagenta, terminator: " ")
+        return readLine() ?? ""
+    }
+
     public static func info(_ message: String) {
         print("i ".brightCyan.bold + message)
     }
